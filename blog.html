@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Stackly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Fraunces:ital,opsz,wght@1,9..144,400..600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{ --ink:#0D2B2A; --teal:#1F8A74; --coral:#EF6355; --cream:#F7F3EC; --sand:#E8E1D3; --slate:#4A5D5B; --white:#FFFFFF;
+  --display:'Fraunces', serif; --body:'Inter', sans-serif; --mono:'IBM Plex Mono', monospace; --frame:0px; --radius:0px; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);background:var(--ink);color:var(--cream);overflow-x:hidden;transition:background .5s ease,color .5s ease;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+h1,h2,h3,h4{font-family:var(--display);font-weight:500;line-height:1.05;}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--coral);display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--coral);}
+.site-frame{margin:var(--frame);border-radius:var(--radius);background:var(--cream);color:var(--ink);position:relative;}
+#loader{position:fixed;inset:0;z-index:9999;background:#0D2B2A;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
+.pulse-line{width:220px;height:40px;}
+.pulse-line path{fill:none;stroke:#EF6355;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1.4s ease-in-out infinite;}
+@keyframes draw{0%{stroke-dashoffset:400;}60%{stroke-dashoffset:0;}100%{stroke-dashoffset:-400;}}
+#loader span{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;color:#E8E1D3;text-transform:uppercase;}
+#scroll-pulse{position:fixed;top:0;left:0;right:0;height:3px;z-index:998;background:var(--sand);}
+#scroll-pulse-fill{height:100%;width:0%;background:var(--coral);}
+header{position:sticky;top:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:20px 40px;background:rgba(247,243,236,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(13,43,42,.08);}
+.logo{display:flex;align-items:center;gap:0;font-family:var(--display);font-size:1.3rem;font-weight:600;text-decoration:none;color:inherit;}
+.logo-mark{width:26px;height:32px;object-fit:contain;flex-shrink:0;}
+.logo .dot{width:9px;height:9px;border-radius:50%;background:var(--coral);}
+nav.links{display:flex;gap:34px;font-size:.92rem;font-weight:500;}
+nav.links a{position:relative;padding-bottom:4px;}
+nav.links a.active{color:var(--coral);}
+nav.links a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:var(--coral);transition:width .3s ease;}
+nav.links a:hover::after{width:100%;}
+.nav-actions{display:flex;align-items:center;gap:18px;}
+.btn{padding:12px 26px;border-radius:40px;font-weight:600;font-size:.9rem;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--coral);color:#fff;transition:transform .25s ease,box-shadow .25s ease;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 28px -10px rgba(239,99,85,.55);}
+.btn-ghost{border:1px solid var(--ink);color:var(--ink);}
+.page-hero{position:relative;min-height:48vh;display:flex;align-items:flex-end;overflow:hidden;}
+.page-hero img{position:absolute;inset:-6% 0;width:100%;height:112%;object-fit:cover;}
+.page-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,43,42,.35) 0%,rgba(13,43,42,.92) 100%);}
+.page-hero-content{position:relative;z-index:2;color:#fff;padding:0 40px 50px;max-width:760px;}
+.page-hero-content h1{font-size:clamp(2.2rem,4.6vw,4rem);margin-top:16px;color:#fff;}
+.page-hero-content h1 em{font-style:italic;color:var(--coral);}
+.breadcrumb{font-family:var(--mono);font-size:.75rem;color:var(--sand);margin-top:22px;opacity:.85;}
+section{padding:100px 40px;position:relative;}
+.section-head{max-width:640px;margin-bottom:50px;}
+.section-head h2{font-size:clamp(1.9rem,3.4vw,2.7rem);margin-top:14px;}
+.section-head p{color:var(--slate);margin-top:16px;font-size:1.02rem;line-height:1.6;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px;}
+.filter-btn{padding:10px 22px;border-radius:40px;font-size:.85rem;font-weight:600;background:var(--white);border:1px solid rgba(13,43,42,.12);transition:all .25s ease;}
+.filter-btn.active,.filter-btn:hover{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+
+/* FEATURED POST */
+.featured-post{display:grid;grid-template-columns:1.1fr 1fr;gap:0;border-radius:24px;overflow:hidden;background:var(--white);border:1px solid rgba(13,43,42,.08);box-shadow:0 24px 50px -30px rgba(13,43,42,.3);}
+.featured-post .fp-img{position:relative;min-height:340px;}
+.featured-post .fp-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.featured-post .fp-body{padding:44px;display:flex;flex-direction:column;justify-content:center;gap:16px;}
+.featured-post .fp-tag{display:inline-flex;align-self:flex-start;font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:#fff;background:var(--coral);padding:6px 14px;border-radius:20px;}
+.featured-post h3{font-size:clamp(1.5rem,2.6vw,2.1rem);}
+.featured-post p{color:var(--slate);line-height:1.65;font-size:.98rem;}
+.fp-meta{display:flex;gap:18px;font-family:var(--mono);font-size:.76rem;color:var(--teal);align-items:center;}
+.fp-meta span{display:flex;align-items:center;gap:6px;}
+
+/* BLOG GRID */
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+.blog-card{background:var(--white);border-radius:20px;overflow:hidden;border:1px solid rgba(13,43,42,.08);transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;}
+.blog-card:hover{transform:translateY(-6px);box-shadow:0 24px 42px -22px rgba(13,43,42,.28);}
+.blog-card .bc-img{position:relative;height:200px;overflow:hidden;}
+.blog-card .bc-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+.blog-card:hover .bc-img img{transform:scale(1.06);}
+.blog-card .bc-cat{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;background:rgba(13,43,42,.72);color:#fff;padding:6px 12px;border-radius:20px;backdrop-filter:blur(4px);}
+.blog-card .bc-body{padding:26px;display:flex;flex-direction:column;gap:12px;flex:1;}
+.blog-card .bc-date{font-family:var(--mono);font-size:.72rem;color:var(--teal);letter-spacing:.04em;}
+.blog-card h4{font-size:1.12rem;line-height:1.3;}
+.blog-card p{color:var(--slate);font-size:.9rem;line-height:1.6;flex:1;}
+.blog-card .bc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:6px;}
+.blog-card .read-more{font-family:var(--mono);font-size:.78rem;font-weight:600;color:var(--coral);display:flex;align-items:center;gap:6px;transition:gap .25s ease;}
+.blog-card:hover .read-more{gap:10px;}
+.blog-card .bc-time{font-size:.76rem;color:var(--slate);}
+.blog-item[data-cat]{}
+.blog-item.hide{display:none;}
+
+/* NEWSLETTER */
+.newsletter-box{border-radius:24px;background:var(--teal);color:#fff;padding:56px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;}
+.newsletter-form{display:flex;gap:10px;flex-wrap:wrap;}
+.newsletter-form input{padding:14px 20px;border-radius:40px;border:none;font-family:var(--body);font-size:.9rem;min-width:240px;background:rgba(255,255,255,.14);color:#fff;}
+.newsletter-form input::placeholder{color:rgba(255,255,255,.7);}
+.newsletter-form .btn{background:#fff;color:var(--ink);flex-shrink:0;}
+
+/* LOAD MORE */
+.load-more-wrap{display:flex;justify-content:center;margin-top:50px;}
+
+footer{background:var(--ink);color:var(--cream);padding:80px 40px 30px;}
+footer{position:relative;overflow:hidden;}
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--coral),transparent);}
+footer::after{content:'';position:absolute;left:-10%;bottom:-140px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(239,99,85,.14),transparent 70%);pointer-events:none;}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;gap:40px 50px;margin-bottom:50px;padding-bottom:50px;border-bottom:1px solid rgba(247,243,236,.1);position:relative;z-index:1;}
+.footer-grid h5{font-family:var(--mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--coral);margin-bottom:18px;}
+.footer-grid ul{list-style:none;display:flex;flex-direction:column;gap:12px;font-size:.9rem;color:var(--sand);}
+.footer-grid ul li a{display:inline-block;transition:padding-left .25s ease,color .25s ease;}
+.footer-grid ul li a:hover{padding-left:7px;color:var(--coral);}
+.footer-brand p{color:var(--sand);font-size:.9rem;margin-top:16px;max-width:290px;line-height:1.7;}
+.footer-social{display:flex;gap:12px;margin-top:24px;}
+.footer-social a{width:40px;height:40px;border-radius:50%;background:rgba(247,243,236,.08);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform .3s ease,background .3s ease;}
+.footer-social a:hover{background:var(--coral);transform:translateY(-4px) rotate(-8deg);}
+.footer-contact-list{display:flex;flex-direction:column;gap:16px;}
+.footer-contact-list .row{display:flex;gap:12px;font-size:.88rem;color:var(--sand);line-height:1.55;}
+.footer-contact-list .row .ic{color:var(--coral);flex-shrink:0;}
+.footer-contact-list .row .ic svg{width:18px;height:18px;}
+.footer-bottom{border-top:none;padding-top:0;display:flex;justify-content:space-between;font-size:.8rem;color:var(--sand);flex-wrap:wrap;gap:10px;padding-bottom:30px;position:relative;z-index:1;}
+.footer-bottom a{transition:color .2s ease;}
+.footer-bottom a:hover{color:var(--coral);}
+#back-top{position:fixed;bottom:30px;right:30px;width:50px;height:50px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;pointer-events:none;transition:all .35s ease;font-size:1.2rem;}
+#back-top.show{opacity:1;pointer-events:auto;}
+@media(max-width:480px){#back-top{width:42px;height:42px;bottom:16px;right:16px;font-size:1rem;}}
+#cursor-glow{position:fixed;width:340px;height:340px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(239,99,85,.10),transparent 70%);transform:translate(-50%,-50%);display:none;}
+@media(min-width:1024px){#cursor-glow{display:block;}}
+
+/* HAMBURGER + MOBILE NAV */
+.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:38px;height:38px;background:none;position:relative;z-index:601;flex-shrink:0;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s ease,opacity .3s ease;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{position:fixed;inset:0;background:var(--cream);z-index:590;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:0;visibility:hidden;transition:opacity .35s ease;padding:40px;}
+.mnav-close{position:absolute;top:24px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--sand);color:var(--ink);display:flex;align-items:center;justify-content:center;transition:transform .3s ease,background .3s ease;}
+.mnav-close:hover{background:var(--coral);color:#fff;transform:rotate(90deg);}
+.mobile-nav.open{opacity:1;visibility:visible;}
+.mobile-nav nav{display:flex;flex-direction:column;align-items:center;width:100%;}
+.mobile-nav a.mnav-link{display:block;width:100%;font-family:var(--display);font-size:1.7rem;color:var(--ink);padding:12px 0;text-align:center;}
+.mobile-nav a.mnav-link.active{color:var(--coral);}
+.mobile-nav .mnav-actions{display:flex;gap:14px;margin-top:28px;justify-content:center;}
+.mobile-nav .mnav-meta{margin-top:40px;font-family:var(--mono);font-size:.72rem;color:var(--slate);text-align:center;letter-spacing:.06em;}
+
+@media(max-width:1200px){
+  .blog-grid{grid-template-columns:1fr 1fr;}
+  .featured-post{grid-template-columns:1fr;}
+  .featured-post .fp-img{min-height:260px;}
+}
+@media(max-width:1024px){
+  header{padding:18px 24px;}
+  nav.links{gap:22px;}
+  .nav-actions{gap:12px;}
+  .nav-actions .btn{padding:11px 18px;font-size:.84rem;}
+}
+@media(max-width:900px){
+  header{padding:16px 24px;}
+  nav.links{display:none;}
+  .nav-actions .btn{display:none;}
+  .hamburger{display:flex;}
+}
+@media(max-width:760px){
+  header{padding:16px 20px;} section{padding:70px 20px;}
+  .page-hero-content{padding:0 20px 40px;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .blog-grid{grid-template-columns:1fr;}
+  .featured-post .fp-body{padding:30px;}
+  .newsletter-box{padding:36px 26px;}
+}
+@media(max-width:480px){
+  .footer-brand p{max-width:none;}
+  .footer-bottom{flex-direction:column;text-align:center;gap:14px;}
+  .footer-social a{width:36px;height:36px;}
+  .page-hero{min-height:42vh;}
+  section{padding:56px 16px;}
+  .page-hero-content{padding:0 16px 28px;}
+  .footer-grid{grid-template-columns:1fr;}
+  .filter-bar{gap:8px;}
+  .filter-btn{padding:8px 16px;font-size:.78rem;}
+  .mobile-nav a.mnav-link{font-size:1.35rem;}
+  .logo{font-size:1.1rem;}
+  .logo-mark{width:22px;height:27px;}
+  .btn{padding:11px 20px;font-size:.84rem;}
+  .newsletter-form input{min-width:0;width:100%;}
+  .newsletter-form{width:100%;}
+}
+</style>
+</head>
+<body>
+<div id="loader"><svg class="pulse-line" viewBox="0 0 220 40"><path d="M0 20 H70 L85 5 L100 35 L115 20 H220"/></svg><span>Stackly</span></div>
+<div id="cursor-glow"></div>
+<div id="scroll-pulse"><div id="scroll-pulse-fill"></div></div>
+
+<div class="site-frame">
+<header>
+  <a href="index.html" class="logo"><img src="stackly-logo.webp" alt="Stackly logo" class="logo-mark">Stackly</a>
+  <nav class="links">
+    <a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="doctors.html">Doctors</a><a href="blog.html" class="active">Blog</a><a href="contact.html">Contact</a>
+  </nav>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-ghost">Login</a>
+    <a href="./404.html" class="btn btn-primary">Book Visit →</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobile-nav">
+  <button class="mnav-close" id="mnav-close" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <nav>
+      <a href="index.html" class="mnav-link">Home</a>
+      <a href="about.html" class="mnav-link">About</a>
+      <a href="services.html" class="mnav-link">Services</a>
+      <a href="doctors.html" class="mnav-link">Doctors</a>
+      <a href="blog.html" class="mnav-link active">Blog</a>
+      <a href="contact.html" class="mnav-link">Contact</a>
+  </nav>
+  <div class="mnav-actions">
+    <a href="login.html" class="btn btn-ghost">Login</a>
+    <a href="./404.html" class="btn btn-primary">Book Visit →</a>
+  </div>
+  <div class="mnav-meta">Stackly &middot; Stackly Healthcare &middot; 1800-STACKLY</div>
+</div>
+
+<section class="page-hero" style="padding:0;">
+  <img src="./assets/box4.webp" onerror="this.style.background='var(--ink)';this.remove()">
+  <div class="page-hero-content">
+    <div class="eyebrow" style="color:#E8E1D3;">Health Journal</div>
+    <h1>Insights worth <em>reading</em>.</h1>
+    <div class="breadcrumb">Home / Blog</div>
+  </div>
+</section>
+
+<!-- FEATURED POST -->
+<section>
+  <div class="section-head"><div class="eyebrow">Editor's Pick</div><h2>Featured this week.</h2></div>
+  <a href="./404.html" style="display:block;">
+    <article class="featured-post">
+      <div class="fp-img"><img loading="lazy" src="./assets/heart health.webp" onerror="this.parentElement.style.background='var(--teal)';this.querySelector('img').remove()" alt="Heart health"></div>
+      <div class="fp-body">
+        <span class="fp-tag">Heart Health</span>
+        <h3>Reading your blood pressure numbers correctly.</h3>
+        <p>Most people glance at their reading and move on — but the gap between the two numbers matters just as much as either one alone. Our cardiology team breaks down what's actually normal, what's borderline, and when to book a screening.</p>
+        <div class="fp-meta">
+          <span>Dr. Anika Rao</span>
+          <span>Jul 14, 2026</span>
+          <span>6 min read</span>
+        </div>
+      </div>
+    </article>
+  </a>
+</section>
+
+<!-- BLOG GRID -->
+<section style="padding-top:0;">
+  <div class="section-head"><div class="eyebrow">All Articles</div><h2>Browse by topic.</h2></div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All Articles</button>
+    <button class="filter-btn" data-filter="nutrition">Nutrition</button>
+    <button class="filter-btn" data-filter="sleep">Sleep</button>
+    <button class="filter-btn" data-filter="heart">Heart Health</button>
+    <button class="filter-btn" data-filter="preventive">Preventive Care</button>
+    <button class="filter-btn" data-filter="news">Clinic News</button>
+  </div>
+
+  <div class="blog-grid" id="blog-grid">
+    <div class="blog-item" data-cat="nutrition">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/nutrition.webp" onerror="this.parentElement.style.background='var(--teal)';this.remove()" alt="Nutrition"><span class="bc-cat">Nutrition</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jul 09, 2026</div>
+            <h4>Why hydration affects more than you think.</h4>
+            <p>Fatigue, headaches, and poor focus are often traced back to something far simpler than patients expect.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">4 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="sleep">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/sleep.webp" onerror="this.parentElement.style.background='var(--coral)';this.remove()" alt="Sleep"><span class="bc-cat">Sleep</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jul 02, 2026</div>
+            <h4>The 90-minute cycle rule, explained simply.</h4>
+            <p>Waking up mid-cycle is why eight hours in bed can still feel like four. Here's how to time it better.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">5 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="preventive">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/preventive care.webp" onerror="this.parentElement.style.background='var(--ink)';this.remove()" alt="Preventive care"><span class="bc-cat">Preventive Care</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jun 24, 2026</div>
+            <h4>Screenings worth booking in your 30s and 40s.</h4>
+            <p>A short, honest list of what's actually evidence-backed — and what you can safely skip for now.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">7 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="news">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/image-3.webp" onerror="this.parentElement.style.background='var(--ink)';this.remove()" alt="New clinic"><span class="bc-cat">Clinic News</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jul 02, 2026</div>
+            <h4>Stackly opens its 12th clinic in Coimbatore.</h4>
+            <p>Full diagnostics, cardiology, and pediatrics under one roof — now open for bookings.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">3 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="news">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/image-4.webp" onerror="this.parentElement.style.background='var(--slate)';this.remove()" alt="Imaging wing"><span class="bc-cat">Clinic News</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jun 18, 2026</div>
+            <h4>New same-day imaging wing now live.</h4>
+            <p>CT and MRI reports now reach your patient dashboard the same afternoon, not days later.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">3 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="heart">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/cardiology.webp" onerror="this.parentElement.style.background='var(--teal)';this.remove()" alt="Cardiology"><span class="bc-cat">Heart Health</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jun 11, 2026</div>
+            <h4>Family history of heart disease? Start here.</h4>
+            <p>What to ask for at your next check-up if cardiac issues run in your family.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">6 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="nutrition">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/nutri.webp" onerror="this.parentElement.style.background='var(--coral)';this.remove()" alt="Nutrition"><span class="bc-cat">Nutrition</span></div>
+          <div class="bc-body">
+            <div class="bc-date">Jun 03, 2026</div>
+            <h4>Reading a food label without the guesswork.</h4>
+            <p>Our dietitians walk through the three numbers that matter most — and the ones that don't.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">5 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="preventive">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/img-3.webp" onerror="this.parentElement.style.background='var(--slate)';this.remove()" alt="Preventive care"><span class="bc-cat">Preventive Care</span></div>
+          <div class="bc-body">
+            <div class="bc-date">May 27, 2026</div>
+            <h4>Vaccines adults forget they still need.</h4>
+            <p>Tetanus boosters and flu shots aren't the whole story — a quick refresher on the adult schedule.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">4 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+    <div class="blog-item" data-cat="sleep">
+      <a href="./404.html">
+        <article class="blog-card">
+          <div class="bc-img"><img loading="lazy" src="./assets/img1.webp" onerror="this.parentElement.style.background='var(--ink)';this.remove()" alt="Sleep"><span class="bc-cat">Sleep</span></div>
+          <div class="bc-body">
+            <div class="bc-date">May 20, 2026</div>
+            <h4>Screen time before bed: how much is too much?</h4>
+            <p>The honest answer is more nuanced than "none at all" — here's what the evidence actually shows.</p>
+            <div class="bc-foot"><span class="read-more">Read more →</span><span class="bc-time">4 min</span></div>
+          </div>
+        </article>
+      </a>
+    </div>
+  </div>
+
+ <a href="./404.html"> <div class="load-more-wrap"><button class="btn btn-ghost" >Load More Articles</button></div></a>
+</section>
+
+<!-- NEWSLETTER -->
+<section style="padding-top:0;">
+  <div class="newsletter-box">
+    <div><h2 style="font-size:1.8rem;">Health tips, once a month.</h2><p style="color:#DCEFEA;margin-top:8px;">No spam — just practical guidance from our clinical team, straight to your inbox.</p></div>
+    <form class="newsletter-form" onsubmit="event.preventDefault();window.location.href='404.html';">
+      <input type="email" placeholder="you@email.com" required>
+      <button type="submit" class="btn">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand reveal">
+      <a href="index.html" class="logo" style="color:#fff;"><img src="stackly-logo.webp" alt="Stackly logo" class="logo-mark">Stackly</a>
+      <p>Stackly Healthcare — modern, connected care across 12 locations in South India. Comprehensive medicine, honest pricing, and a team that remembers your name.</p>
+      <div class="footer-social">
+        <a href="./404.html" aria-label="Instagram"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="./404.html" aria-label="Facebook"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M14.5 8.5H16.5V5.5H14.5C12.567 5.5 11 7.067 11 9V11H9V14H11V19H14V14H16.2L16.7 11H14V9C14 8.7 14.2 8.5 14.5 8.5Z"/></svg></a>
+        <a href="./404.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.94 8.5C7.87 8.5 8.62 7.75 8.62 6.81C8.62 5.87 7.87 5.12 6.94 5.12C6.01 5.12 5.25 5.87 5.25 6.81C5.25 7.75 6.01 8.5 6.94 8.5Z"/><path d="M5.4 10.13H8.47V19H5.4V10.13Z"/><path d="M13.55 10.13H10.62V19H13.62V14.35C13.62 13.03 13.87 11.75 15.5 11.75C17.11 11.75 17.13 13.26 17.13 14.44V19H20.13V13.84C20.13 11.24 19.57 9.87 16.87 9.87C15.4 9.87 14.35 10.5 13.62 11.5H13.55V10.13Z"/></svg></a>
+        <a href="./404.html" aria-label="X"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M13.9 10.4 20.2 3H18.7l-5.5 6.4L8.9 3H3.5l6.6 9.5L3.5 20h1.5l5.8-6.7 4.6 6.7h5.4l-6.9-9.6Zm-2 2.4-0.7-1L5.8 4.1h2.3l4.3 6.1.7 1 5.6 8h-2.3l-4.5-6.4Z"/></svg></a>
+      </div>
+    </div>
+        <div class="reveal"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="./services.html">Services</a></li> <li><a href="doctors.html">Doctors</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="reveal"><h5>Our Services</h5><ul><li><a href="./404.html">Cardiology</a></li><li><a href="./404.html">Pediatrics</a></li><li><a href="./404.html">Orthopedics</a></li><li><a href="./404.html">Diagnostics &amp; Labs</a></li><li><a href="./404.html">Dermatology</a></li><li><a href="./404.html">Emergency Care</a></li></ul></div>
+    <div class="reveal">
+      <h5>Visit Us</h5>
+      <div class="footer-contact-list">
+        <div class="row"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>Salem, Tamil Nadu, India</span></div>
+        <div class="row"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span>1800-STACKLY<br><span style="opacity:.7;font-size:.8rem;">24/7 Emergency Line</span></span></div>
+        <div class="row"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg></span><span>hello@stacklyhealthcare.com</span></div>
+        <div class="row"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span>Mon–Sat: 8 AM – 8 PM<br>Sunday: 9 AM – 2 PM</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Stackly. All rights reserved.</span>
+    <span><a href="./404.html">Privacy Policy</a> · <a href="./404.html">Terms of Service</a> · <a href="./404.html">Sitemap</a></span>
+  </div>
+</footer>
+</div>
+<button id="back-top">↑</button>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+gsap.utils.toArray('.reveal').forEach((el,i)=>{gsap.fromTo(el,{opacity:0,y:30},{opacity:1,y:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%'},delay:(i%4)*0.07});});
+
+gsap.to('.page-hero img',{yPercent:14,ease:'none',scrollTrigger:{trigger:'.page-hero',start:'top top',end:'bottom top',scrub:true}});
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobile-nav');
+const mnavItems = mobileNav ? mobileNav.querySelectorAll('.mnav-link, .mnav-actions .btn, .mnav-meta, .mnav-close') : [];
+
+if(hamburger && mobileNav){
+  gsap.set(mnavItems,{opacity:0,y:26});
+
+  function openMobileNav(){
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded','true');
+    mobileNav.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    gsap.fromTo(mnavItems,{opacity:0,y:26},{opacity:1,y:0,duration:.5,ease:'power2.out',stagger:.06,delay:.05});
+  }
+  function closeMobileNav(){
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded','false');
+    mobileNav.classList.remove('open');
+    document.body.style.overflow = '';
+    gsap.set(mnavItems,{opacity:0,y:26});
+  }
+
+  hamburger.addEventListener('click',()=>{
+    if(mobileNav.classList.contains('open')) closeMobileNav(); else openMobileNav();
+  });
+  mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMobileNav));
+
+  const mnavClose = document.getElementById('mnav-close');
+  if(mnavClose) mnavClose.addEventListener('click',closeMobileNav);
+
+  window.addEventListener('resize',()=>{
+    if(window.innerWidth > 1024 && mobileNav.classList.contains('open')) closeMobileNav();
+  });
+  window.addEventListener('keydown',e=>{
+    if(e.key === 'Escape' && mobileNav.classList.contains('open')) closeMobileNav();
+  });
+}
+
+window.addEventListener('load',()=>{
+  gsap.to('#loader',{opacity:0,duration:.6,delay:.3,onComplete:()=>{document.getElementById('loader').style.display='none';heroEntrance();}});
+});
+function heroEntrance(){
+  gsap.from('.page-hero-content .eyebrow',{opacity:0,y:18,duration:.7});
+  gsap.from('.page-hero-content h1',{opacity:0,y:36,duration:.9,delay:.1});
+  gsap.from('.page-hero-content .breadcrumb',{opacity:0,y:14,duration:.6,delay:.35});
+}
+gsap.fromTo('.featured-post',{opacity:0,y:26},{opacity:1,y:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:'.featured-post',start:'top 90%'}});
+gsap.utils.toArray('.blog-card').forEach((el,i)=>{
+  gsap.fromTo(el,{opacity:0,y:26},{opacity:1,y:0,duration:.6,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%'},delay:(i%3)*0.06});
+});
+gsap.fromTo('.newsletter-box',{opacity:0,y:26},{opacity:1,y:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:'.newsletter-box',start:'top 90%'}});
+
+/* Filter */
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.blog-item').forEach(item=>{
+      item.classList.toggle('hide', f!=='all' && item.dataset.cat!==f);
+    });
+  });
+});
+/* Load more (placeholder — hides the button once clicked) */
+const loadMoreBtn = document.getElementById('load-more');
+if(loadMoreBtn){
+  loadMoreBtn.addEventListener('click',()=>{
+    loadMoreBtn.textContent = "You're all caught up";
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.style.opacity = '.55';
+  });
+}
+
+window.addEventListener('scroll',()=>{
+  const h = document.documentElement;
+  const pct = (h.scrollTop)/(h.scrollHeight - h.clientHeight) * 100;
+  document.getElementById('scroll-pulse-fill').style.width = pct + '%';
+  document.getElementById('back-top').classList.toggle('show', h.scrollTop > 700);
+});
+document.getElementById('back-top').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+const glow = document.getElementById('cursor-glow');
+window.addEventListener('mousemove',e=>{ glow.style.left = e.clientX+'px'; glow.style.top = e.clientY+'px'; });
+</script>
+</body>
+</html>
